@@ -2,13 +2,9 @@ version: '3'
 
 services:
   app:
-    image: eclipse-temurin:17
+    build: .
     ports:
       - 8080:8080
-    working_dir: /app/target
-    volumes:
-      - ./target:/app/target
-    command: ["java", "-jar", "kakei_track_api-0.0.1-SNAPSHOT.jar"]
     depends_on:
       - mysql
 
