@@ -3,7 +3,7 @@ spring:
     name: kakei_track_api
 
   datasource:
-    url: jdbc:mysql://kakei_track_api-mysql-1:3306/kakei_track_database
+    url: jdbc:mysql://kakei_track_db:3306/kakei_track_db
     username: admin
     password: admin
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -22,3 +22,6 @@ spring:
     user:
       name: admin
       password: admin
+
+  app:
+    isProduction: false

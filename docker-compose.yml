@@ -1,24 +1,45 @@
 version: '3'
 
+networks:
+  dev:
+
 services:
   app:
-    build: .
-    ports:
-      - 8080:8080
-    depends_on:
-      - mysql
-
-  mysql:
-    image: mysql:8.0.26
+    container_name: kakei_track_app
+    image: maven:3.8.5-openjdk-17
+    volumes:
+      - .:/app
+    working_dir: /app
     environment:
-      MYSQL_DATABASE: kakei_track_database
+      TZ: "Asia/Tokyo"
+    ports:
+      - "18080:8080"
+      - "5015:5005"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dev
+    command: ./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+
+  db:
+    image: mysql/mysql-server:8.0
+    container_name: kakei_track_db
+    ports:
+      - "13306:3306"
+    environment:
+      MYSQL_DATABASE: kakei_track_db
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
       MYSQL_ROOT_PASSWORD: root
-    ports:
-      - 3306:3306
+      MYSQL_ROOT_HOST: '%'
     volumes:
-      - db-data:/var/lib/mysql
-
-volumes:
-  db-data:
+      - ./docker/local/db/my.cnf:/etc/mysql/conf.d/my.cnf
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-p", "3306", "-u", "root", "--password=root", "-e", "select 1", "kakei_track_db"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      - dev
